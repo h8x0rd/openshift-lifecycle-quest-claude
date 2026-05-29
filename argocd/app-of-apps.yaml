@@ -4,7 +4,7 @@ metadata:
   name: lifecycle-quest-root
   namespace: openshift-gitops
 spec:
-  project: lifecycle-quest
+  project: default
   source:
     repoURL: https://github.com/h8x0rd/openshift-lifecycle-quest-claude
     targetRevision: main

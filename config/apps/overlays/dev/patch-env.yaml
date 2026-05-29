@@ -12,6 +12,6 @@ spec:
             - name: APP_ENV
               value: dev
             - name: APP_VERSION
-              value: bootstrap
+              value: 80e625f-20260529142125
             - name: MESSAGE
               value: "Development stage: build fast, learn faster!"

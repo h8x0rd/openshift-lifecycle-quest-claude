@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: gitops-demo-cicd
+  labels:
+    app.kubernetes.io/part-of: openshift-lifecycle-demo
+    argocd.argoproj.io/managed-by: openshift-gitops
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: gitops-demo-dev
+  labels:
+    app.kubernetes.io/part-of: openshift-lifecycle-demo
+    argocd.argoproj.io/managed-by: openshift-gitops
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: gitops-demo-test
+  labels:
+    app.kubernetes.io/part-of: openshift-lifecycle-demo
+    argocd.argoproj.io/managed-by: openshift-gitops
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: gitops-demo-prod
+  labels:
+    app.kubernetes.io/part-of: openshift-lifecycle-demo
+    argocd.argoproj.io/managed-by: openshift-gitops

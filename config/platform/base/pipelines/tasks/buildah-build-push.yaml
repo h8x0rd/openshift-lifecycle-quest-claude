@@ -1,0 +1,51 @@
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: buildah-build-push
+  namespace: gitops-demo-cicd
+spec:
+  description: Build and push a container image using Buildah.
+  params:
+    - name: image
+      type: string
+      description: Fully qualified image reference including tag.
+    - name: context-dir
+      type: string
+      default: app
+    - name: containerfile
+      type: string
+      default: Containerfile
+  workspaces:
+    - name: source
+  steps:
+    - name: build-and-push
+      image: quay.io/buildah/stable:v1.35
+      workingDir: $(workspaces.source.path)
+      securityContext:
+        privileged: true
+      env:
+        - name: STORAGE_DRIVER
+          value: vfs
+      script: |
+        #!/usr/bin/env bash
+        set -euo pipefail
+
+        REGISTRY="image-registry.openshift-image-registry.svc:5000"
+        TOKEN="$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)"
+
+        buildah login --tls-verify=false -u openshift -p "${TOKEN}" "${REGISTRY}"
+        buildah bud --storage-driver=vfs --format=oci \
+          -f "$(params.context-dir)/$(params.containerfile)" \
+          -t "$(params.image)" \
+          "$(params.context-dir)"
+
+        # Push the immutable build tag used by GitOps promotion.
+        buildah push --storage-driver=vfs --tls-verify=false "$(params.image)" "docker://$(params.image)"
+
+        # Also maintain a mutable bootstrap tag so the initial Argo CD sync has
+        # something pullable before the first GitOps image-tag commit is synced.
+        # The deployment should move off this tag after the update-gitops-image task.
+        IMAGE="$(params.image)"
+        REPOSITORY="${IMAGE%:*}"
+        buildah tag "$(params.image)" "${REPOSITORY}:bootstrap"
+        buildah push --storage-driver=vfs --tls-verify=false "${REPOSITORY}:bootstrap" "docker://${REPOSITORY}:bootstrap"

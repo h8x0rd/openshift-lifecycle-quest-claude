@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: lifecycle-quest-dev
+  namespace: openshift-gitops
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  project: lifecycle-quest
+  source:
+    repoURL: https://github.com/h8x0rd/openshift-lifecycle-quest-claude
+    targetRevision: main
+    path: config/apps/overlays/dev
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: gitops-demo-dev
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - RespectIgnoreDifferences=true

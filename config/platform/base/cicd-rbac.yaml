@@ -1,0 +1,30 @@
+# Allows the pipeline service account to push images into the dev namespace.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: pipeline-image-builder
+  namespace: gitops-demo-dev
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:image-builder
+subjects:
+  - kind: ServiceAccount
+    name: pipeline
+    namespace: gitops-demo-cicd
+---
+# Demo-only: permits the Buildah task to run privileged.
+# Replace with an unprivileged Buildah setup for production.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: pipeline-use-privileged-scc
+  namespace: gitops-demo-cicd
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:openshift:scc:privileged
+subjects:
+  - kind: ServiceAccount
+    name: pipeline
+    namespace: gitops-demo-cicd

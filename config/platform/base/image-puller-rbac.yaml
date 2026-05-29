@@ -1,0 +1,28 @@
+# Allows test and prod deployments to pull the exact image built in the dev namespace.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: test-can-pull-lifecycle-quest
+  namespace: gitops-demo-dev
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:image-puller
+subjects:
+  - kind: ServiceAccount
+    name: default
+    namespace: gitops-demo-test
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: prod-can-pull-lifecycle-quest
+  namespace: gitops-demo-dev
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:image-puller
+subjects:
+  - kind: ServiceAccount
+    name: default
+    namespace: gitops-demo-prod

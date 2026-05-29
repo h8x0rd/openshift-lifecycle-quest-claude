@@ -1,0 +1,17 @@
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: npm-test
+  namespace: gitops-demo-cicd
+spec:
+  description: Run the Node.js test suite.
+  workspaces:
+    - name: source
+  steps:
+    - name: npm-test
+      image: registry.access.redhat.com/ubi9/nodejs-20:9.5
+      workingDir: $(workspaces.source.path)/app
+      script: |
+        #!/usr/bin/env bash
+        set -euo pipefail
+        npm test

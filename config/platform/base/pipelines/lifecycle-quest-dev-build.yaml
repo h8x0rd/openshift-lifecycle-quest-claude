@@ -1,0 +1,77 @@
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: lifecycle-quest-dev-build
+  namespace: gitops-demo-cicd
+spec:
+  description: Build, test, push the dev image, and update the dev GitOps overlay.
+  params:
+    - name: git-url
+      type: string
+    - name: git-revision
+      type: string
+      default: main
+    - name: image-repository
+      type: string
+      default: image-registry.openshift-image-registry.svc:5000/gitops-demo-dev/lifecycle-quest
+    - name: image-tag
+      type: string
+  workspaces:
+    - name: shared-workspace
+  tasks:
+    - name: clone
+      taskRef:
+        name: git-clone-simple
+      params:
+        - name: git-url
+          value: $(params.git-url)
+        - name: git-revision
+          value: $(params.git-revision)
+      workspaces:
+        - name: output
+          workspace: shared-workspace
+
+    - name: test
+      runAfter:
+        - clone
+      taskRef:
+        name: npm-test
+      workspaces:
+        - name: source
+          workspace: shared-workspace
+
+    - name: build-and-push
+      runAfter:
+        - test
+      taskRef:
+        name: buildah-build-push
+      params:
+        - name: image
+          value: $(params.image-repository):$(params.image-tag)
+        - name: context-dir
+          value: app
+        - name: containerfile
+          value: Containerfile
+      workspaces:
+        - name: source
+          workspace: shared-workspace
+
+    - name: update-dev-gitops
+      runAfter:
+        - build-and-push
+      taskRef:
+        name: update-gitops-image
+      params:
+        - name: git-url
+          value: $(params.git-url)
+        - name: git-revision
+          value: $(params.git-revision)
+        - name: environment
+          value: dev
+        - name: image-repository
+          value: $(params.image-repository)
+        - name: image-tag
+          value: $(params.image-tag)
+      workspaces:
+        - name: source
+          workspace: shared-workspace

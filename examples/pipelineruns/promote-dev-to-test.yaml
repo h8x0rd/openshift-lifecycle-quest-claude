@@ -1,0 +1,27 @@
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  generateName: lifecycle-quest-promote-dev-test-
+  namespace: gitops-demo-cicd
+spec:
+  pipelineRef:
+    name: lifecycle-quest-promote
+  serviceAccountName: pipeline
+  params:
+    - name: git-url
+      value: https://github.com/h8x0rd/openshift-lifecycle-quest-claude
+    - name: git-revision
+      value: main
+    - name: source-environment
+      value: dev
+    - name: target-environment
+      value: test
+  workspaces:
+    - name: shared-workspace
+      volumeClaimTemplate:
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 1Gi

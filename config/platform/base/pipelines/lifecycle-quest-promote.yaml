@@ -1,0 +1,49 @@
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: lifecycle-quest-promote
+  namespace: gitops-demo-cicd
+spec:
+  description: Promote an already-built image tag from one GitOps overlay to another.
+  params:
+    - name: git-url
+      type: string
+    - name: git-revision
+      type: string
+      default: main
+    - name: source-environment
+      type: string
+    - name: target-environment
+      type: string
+  workspaces:
+    - name: shared-workspace
+  tasks:
+    - name: clone
+      taskRef:
+        name: git-clone-simple
+      params:
+        - name: git-url
+          value: $(params.git-url)
+        - name: git-revision
+          value: $(params.git-revision)
+      workspaces:
+        - name: output
+          workspace: shared-workspace
+
+    - name: promote
+      runAfter:
+        - clone
+      taskRef:
+        name: promote-gitops-image
+      params:
+        - name: git-url
+          value: $(params.git-url)
+        - name: git-revision
+          value: $(params.git-revision)
+        - name: source-environment
+          value: $(params.source-environment)
+        - name: target-environment
+          value: $(params.target-environment)
+      workspaces:
+        - name: source
+          workspace: shared-workspace

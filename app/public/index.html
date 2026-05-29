@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>OpenShift Lifecycle Quest</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <main class="shell">
+    <section class="hero">
+      <div>
+        <p class="eyebrow">OpenShift GitOps + Pipelines</p>
+        <h1>Lifecycle Quest</h1>
+        <p id="message" class="message">Loading release message...</p>
+      </div>
+      <div class="badge" id="envBadge">local</div>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <h2>Release rocket</h2>
+        <p>Click the button to celebrate a successful stage promotion.</p>
+        <button id="launchButton">Launch release 🚀</button>
+        <div class="rocket" id="rocket">🚀</div>
+      </article>
+
+      <article class="card">
+        <h2>Quest meter</h2>
+        <p>Show how far this release has progressed.</p>
+        <div class="meter"><span id="meterFill"></span></div>
+        <p id="progressText" class="small">Calculating stage...</p>
+      </article>
+
+      <article class="card wide">
+        <h2>Deployment checklist</h2>
+        <ul class="checklist">
+          <li><input type="checkbox" checked /> Source committed to Git</li>
+          <li><input type="checkbox" checked /> Pipeline test completed</li>
+          <li><input type="checkbox" checked /> Image built in OpenShift</li>
+          <li><input type="checkbox" id="gitopsCheck" /> GitOps overlay updated</li>
+          <li><input type="checkbox" id="syncCheck" /> Argo CD synced</li>
+        </ul>
+      </article>
+    </section>
+
+    <section class="footer-card">
+      <span>Version: <strong id="version">unknown</strong></span>
+      <span>Pod: <strong id="hostname">unknown</strong></span>
+      <span>Last API refresh: <strong id="timestamp">unknown</strong></span>
+    </section>
+  </main>
+
+  <script src="/script.js"></script>
+</body>
+</html>

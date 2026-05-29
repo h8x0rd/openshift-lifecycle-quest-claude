@@ -1,0 +1,27 @@
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  generateName: lifecycle-quest-dev-build-
+  namespace: gitops-demo-cicd
+spec:
+  pipelineRef:
+    name: lifecycle-quest-dev-build
+  serviceAccountName: pipeline
+  params:
+    - name: git-url
+      value: https://github.com/h8x0rd/openshift-lifecycle-quest-claude
+    - name: git-revision
+      value: main
+    - name: image-repository
+      value: image-registry.openshift-image-registry.svc:5000/gitops-demo-dev/lifecycle-quest
+    - name: image-tag
+      value: demo-replace-me
+  workspaces:
+    - name: shared-workspace
+      volumeClaimTemplate:
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 1Gi

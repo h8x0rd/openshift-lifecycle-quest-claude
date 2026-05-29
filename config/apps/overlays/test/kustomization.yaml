@@ -1,0 +1,14 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: gitops-demo-test
+resources:
+  - ../../base
+patches:
+  - path: patch-env.yaml
+images:
+  - name: lifecycle-quest
+    newName: image-registry.openshift-image-registry.svc:5000/gitops-demo-dev/lifecycle-quest
+    newTag: bootstrap
+commonLabels:
+  app.kubernetes.io/instance: lifecycle-quest-test
+  app.kubernetes.io/environment: test

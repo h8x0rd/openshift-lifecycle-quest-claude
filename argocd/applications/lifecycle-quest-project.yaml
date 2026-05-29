@@ -1,0 +1,28 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: lifecycle-quest
+  namespace: openshift-gitops
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  description: Project for the OpenShift Lifecycle Quest demo.
+  sourceRepos:
+    - https://github.com/h8x0rd/openshift-lifecycle-quest-claude
+  destinations:
+    - server: https://kubernetes.default.svc
+      namespace: openshift-gitops
+    - server: https://kubernetes.default.svc
+      namespace: gitops-demo-cicd
+    - server: https://kubernetes.default.svc
+      namespace: gitops-demo-dev
+    - server: https://kubernetes.default.svc
+      namespace: gitops-demo-test
+    - server: https://kubernetes.default.svc
+      namespace: gitops-demo-prod
+  clusterResourceWhitelist:
+    - group: '*'
+      kind: '*'
+  namespaceResourceWhitelist:
+    - group: '*'
+      kind: '*'

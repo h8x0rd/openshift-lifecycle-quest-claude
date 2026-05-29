@@ -1,0 +1,68 @@
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: update-gitops-image
+  namespace: gitops-demo-cicd
+spec:
+  description: Update a Kustomize overlay image tag and push the change back to Git.
+  params:
+    - name: git-url
+      type: string
+    - name: git-revision
+      type: string
+      default: main
+    - name: environment
+      type: string
+      default: dev
+    - name: image-repository
+      type: string
+    - name: image-tag
+      type: string
+  workspaces:
+    - name: source
+  steps:
+    - name: update-and-push
+      image: alpine/git:2.45.2
+      workingDir: $(workspaces.source.path)
+      env:
+        - name: GIT_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: git-credentials
+              key: username
+        - name: GIT_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: git-credentials
+              key: token
+      script: |
+        #!/usr/bin/env sh
+        set -eu
+
+        git config user.name "OpenShift Pipeline Bot"
+        git config user.email "pipeline-bot@example.com"
+
+        GIT_HOST=$(echo "$(params.git-url)" | sed 's#https://##' | cut -d'/' -f1)
+        printf 'machine %s login %s password %s\n' "${GIT_HOST}" "${GIT_USERNAME}" "${GIT_TOKEN}" > ~/.netrc
+        chmod 600 ~/.netrc
+        trap "rm -f ~/.netrc" EXIT
+
+        FILE="config/apps/overlays/$(params.environment)/kustomization.yaml"
+        PATCH="config/apps/overlays/$(params.environment)/patch-env.yaml"
+
+        sed -i -E "s#newName: .*#newName: $(params.image-repository)#" "${FILE}"
+        sed -i -E "s#newTag: .*#newTag: $(params.image-tag)#" "${FILE}"
+        awk -v tag="$(params.image-tag)" '
+          /name: APP_VERSION/ { print; getline; sub(/value: .*/, "value: " tag); print; next }
+          { print }
+        ' "${PATCH}" > "${PATCH}.tmp"
+        mv "${PATCH}.tmp" "${PATCH}"
+
+        git add "${FILE}" "${PATCH}"
+        if git diff --cached --quiet; then
+          echo "No GitOps change required."
+          exit 0
+        fi
+
+        git commit -m "chore(gitops): deploy $(params.environment) image $(params.image-tag)"
+        git push origin "HEAD:$(params.git-revision)"

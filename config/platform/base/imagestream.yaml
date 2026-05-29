@@ -1,0 +1,8 @@
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: lifecycle-quest
+  namespace: gitops-demo-dev
+  labels:
+    app.kubernetes.io/name: lifecycle-quest
+    app.kubernetes.io/part-of: openshift-lifecycle-demo

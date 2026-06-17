@@ -7,8 +7,8 @@ patches:
   - path: patch-env.yaml
 images:
   - name: lifecycle-quest
-    newName: image-registry.openshift-image-registry.svc:5000/gitops-demo-dev/lifecycle-quest
-    newTag: 80e625f-20260529142125
+    newName: image-registry.openshift-image-registry.svc:5000/gitops-demo-dev/lifecycle-quest-claude
+    newTag: 80e625f-20260617164544
 commonLabels:
   app.kubernetes.io/instance: lifecycle-quest-dev
   app.kubernetes.io/environment: dev
